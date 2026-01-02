@@ -1,100 +1,25 @@
+import { useState } from 'react';
+import { Header } from '../../components/header/header';
 import { OfferList } from '../../components/offers-list/offers-list';
+import { CardStyle } from '../../const/offer';
+import { mockOffers } from '../../mocks/offers';
+import { Offer } from '../../types/offer.type';
 
 type MainPageProps = {
   limit: number;
 };
 
-const mockOffers = [
-  {
-    id: '6af6f711-c28d-4121-82cd-e0b462a27f00',
-    title: 'Beautiful & luxurious studio at great location',
-    type: 'apartment',
-    price: 120,
-    city: {
-      name: 'Amsterdam',
-      location: {
-        latitude: 52.35514938496378,
-        longitude: 4.673877537499948,
-        zoom: 8,
-      },
-    },
-    location: {
-      latitude: 52.35514938496378,
-      longitude: 4.673877537499948,
-      zoom: 8,
-    },
-    isFavorite: false,
-    isPremium: false,
-    rating: 4,
-    previewImage: 'https://url-to-image/image.png',
-  },
-  {
-    id: '6af6f711-c28d-4121-82cd-e0b462a27f01',
-    title: 'Beautiful & luxurious studio at great location',
-    type: 'apartment',
-    price: 120,
-    city: {
-      name: 'Amsterdam',
-      location: {
-        latitude: 52.35514938496378,
-        longitude: 4.673877537499948,
-        zoom: 8,
-      },
-    },
-    location: {
-      latitude: 52.35514938496378,
-      longitude: 4.673877537499948,
-      zoom: 8,
-    },
-    isFavorite: false,
-    isPremium: false,
-    rating: 4,
-    previewImage: 'https://url-to-image/image.png',
-  },
-];
 export function MainPage(props: MainPageProps): JSX.Element {
   const { limit } = props;
+  const [, setSelectedPoint] = useState<Offer['id'] | null>(null);
+
+  const handleIsItemHover = (itemId: Offer['id']) => {
+    setSelectedPoint(itemId);
+  };
 
   return (
     <div className="page page--gray page--main">
-      <header className="header">
-        <div className="container">
-          <div className="header__wrapper">
-            <div className="header__left">
-              <a className="header__logo-link header__logo-link--active">
-                <img
-                  className="header__logo"
-                  src="img/logo.svg"
-                  alt="6 cities logo"
-                  width="81"
-                  height="41"
-                />
-              </a>
-            </div>
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <a
-                    className="header__nav-link header__nav-link--profile"
-                    href="#"
-                  >
-                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                    <span className="header__user-name user__name">
-                      Oliver.conner@gmail.com
-                    </span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
@@ -138,7 +63,9 @@ export function MainPage(props: MainPageProps): JSX.Element {
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">312 places to stay in Amsterdam</b>
+              <b className="places__found">
+                {mockOffers.length} places to stay in Amsterdam
+              </b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
                 <span className="places__sorting-type" tabIndex={0}>
@@ -167,8 +94,10 @@ export function MainPage(props: MainPageProps): JSX.Element {
               </form>
               <OfferList
                 className="cities__places-list places__list tabs__content"
+                cardStyle={CardStyle.Cities}
                 offers={mockOffers}
                 limit={limit}
+                onItemHover={handleIsItemHover}
               />
             </section>
             <div className="cities__right-section">
