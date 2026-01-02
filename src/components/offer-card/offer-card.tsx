@@ -1,30 +1,50 @@
+import { Link } from 'react-router-dom';
 import { Offer } from '../../types/offer.type';
 
 type OfferCardProps = {
   offer: Offer;
+  cardStyle: string;
+  onItemHover?: (item: string) => void;
 };
 
 export function OfferCard(props: OfferCardProps): JSX.Element {
-  const { offer } = props;
+  const { offer, cardStyle, onItemHover } = props;
+
+  const handleMouseEnter = () => {
+    onItemHover?.(offer.id);
+  };
+
+  const handleMouseLeave = () => {
+    onItemHover?.('');
+  };
+
   return (
-    <article className="cities__card place-card">
+    <article
+      className={`${cardStyle}__card place-card`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {offer.isPremium && (
         <div className="place-card__mark">
           <span>Premium</span>
         </div>
       )}
-      <div className="cities__image-wrapper place-card__image-wrapper">
-        <a href="#">
+      <div className={`${cardStyle}__image-wrapper place-card__image-wrapper`}>
+        <Link to={`/offer/${offer.id}`}>
           <img
             className="place-card__image"
-            src="img/apartment-01.jpg"
+            src={offer.previewImage}
             width="260"
             height="200"
             alt="Place image"
           />
-        </a>
+        </Link>
       </div>
-      <div className="place-card__info">
+      <div
+        className={`${
+          cardStyle === 'favorites' ? 'favorites__card-info' : ''
+        } place-card__info`}
+      >
         <div className="place-card__price-wrapper">
           <div className="place-card__price">
             <b className="place-card__price-value">&euro;{offer.price}</b>
@@ -44,7 +64,7 @@ export function OfferCard(props: OfferCardProps): JSX.Element {
           </div>
         </div>
         <h2 className="place-card__name">
-          <a href="#">Beautiful &amp; luxurious apartment at great location</a>
+          <Link to={`/offer/${offer.id}`}>{offer.title}</Link>
         </h2>
         <p className="place-card__type">Apartment</p>
       </div>
