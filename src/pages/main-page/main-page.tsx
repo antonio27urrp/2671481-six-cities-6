@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { CityList } from '../../components/city-list/city-list';
 import { Header } from '../../components/header/header';
 import { Map } from '../../components/map/map';
 import { OfferList } from '../../components/offers-list/offers-list';
 import { CardStyle } from '../../const/offer';
-import { mockOffers } from '../../mocks/offers';
+import { useAppSelector } from '../../hooks/redux';
+import { getActiveCity } from '../../store/selectors/city-selectors';
+import { getFilteredOffers } from '../../store/selectors/offers-selectors';
 import { Offer } from '../../types/offer.type';
 
 type MainPageProps = {
@@ -12,14 +15,18 @@ type MainPageProps = {
 
 export function MainPage(props: MainPageProps): JSX.Element {
   const { limit } = props;
+
+  const activeCityName = useAppSelector(getActiveCity);
+  const filteredOffers = useAppSelector(getFilteredOffers);
+
   const [selectedPoint, setSelectedPoint] = useState<Offer | null>(null);
 
   const handleIsItemHover = (itemId: Offer['id']) => {
-    const currentPoint = mockOffers.find((offer) => offer.id === itemId);
+    const currentPoint = filteredOffers.find((offer) => offer.id === itemId);
     setSelectedPoint(currentPoint || null);
   };
 
-  const cityData = mockOffers[0].city;
+  const cityData = filteredOffers[0].city;
 
   return (
     <div className="page page--gray page--main">
@@ -29,38 +36,7 @@ export function MainPage(props: MainPageProps): JSX.Element {
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <ul className="locations__list tabs__list">
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Paris</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Cologne</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Brussels</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item tabs__item--active">
-                  <span>Amsterdam</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Hamburg</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Dusseldorf</span>
-                </a>
-              </li>
-            </ul>
+            <CityList />
           </section>
         </div>
         <div className="cities">
@@ -68,7 +44,7 @@ export function MainPage(props: MainPageProps): JSX.Element {
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
               <b className="places__found">
-                {mockOffers.length} places to stay in Amsterdam
+                {filteredOffers.length} places to stay in {activeCityName}
               </b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
@@ -99,7 +75,7 @@ export function MainPage(props: MainPageProps): JSX.Element {
               <OfferList
                 className="cities__places-list places__list tabs__content"
                 cardStyle={CardStyle.Cities}
-                offers={mockOffers}
+                offers={filteredOffers}
                 limit={limit}
                 onItemHover={handleIsItemHover}
               />
@@ -108,7 +84,7 @@ export function MainPage(props: MainPageProps): JSX.Element {
               <Map
                 page="MainPage"
                 city={cityData}
-                points={mockOffers}
+                points={filteredOffers}
                 selectedPoint={selectedPoint}
               />
             </div>
