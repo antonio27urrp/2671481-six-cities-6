@@ -106,6 +106,7 @@ export function MainPage(props: MainPageProps): JSX.Element {
             </section>
             <div className="cities__right-section">
               <Map
+                page="MainPage"
                 city={cityData}
                 points={mockOffers}
                 selectedPoint={selectedPoint}
