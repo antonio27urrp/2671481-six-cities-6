@@ -56,3 +56,14 @@ export type FullOffer = {
 };
 
 export type Offers = Offer[];
+
+export interface ILocation {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+}
+
+export interface ICity {
+  name: string;
+  location: ILocation;
+}

@@ -13,4 +13,13 @@ export enum City {
   Dusseldorf = 'Dusseldorf',
 }
 
+export enum OfferSortType {
+  Popular = 'Popular',
+  LowToHigh = 'Price: low to high',
+  HighToLow = 'Price: high to low',
+  TopRating = 'Top rated first',
+}
+
+export const OFFER_SORT_OPTIONS: string[] = Object.values(OfferSortType);
+
 export const CITY_LIST_OPTIONS: string[] = Object.values(City);
