@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Header } from '../../components/header/header';
+import { Map } from '../../components/map/map';
 import { OfferList } from '../../components/offers-list/offers-list';
 import { ReviewForm } from '../../components/review-form/review-form';
 import { ReviewsList } from '../../components/reviews-list/reviews-list';
@@ -6,9 +8,18 @@ import { CardStyle } from '../../const/offer';
 import { mockFullOffer } from '../../mocks/offer';
 import { mockOffers } from '../../mocks/offers';
 import { mockComments } from '../../mocks/reviews';
+import { Offer } from '../../types/offer.type';
 
 export function OfferPage(): JSX.Element {
+  const [selectedPoint, setSelectedPoint] = useState<Offer | null>(null);
+
   const offerGallery: string[] = mockFullOffer.images.slice(0, 6) || [];
+  const nearbyOffers = mockOffers.slice(0, 3);
+
+  const handleIsItemHover = (itemId: Offer['id']) => {
+    const currentPoint = mockOffers.find((offer) => offer.id === itemId);
+    setSelectedPoint(currentPoint || null);
+  };
 
   return (
     <div className="page">
@@ -124,14 +135,20 @@ export function OfferPage(): JSX.Element {
               </div>
               <section className="offer__reviews reviews">
                 <h2 className="reviews__title">
-                  Reviews &middot; <span className="reviews__amount">1</span>
+                  Reviews &middot;{' '}
+                  <span className="reviews__amount">{mockComments.length}</span>
                 </h2>
                 <ReviewsList comments={mockComments} />
                 <ReviewForm />
               </section>
             </div>
           </div>
-          <section className="offer__map map"></section>
+          <Map
+            page="OfferPage"
+            city={mockFullOffer.city}
+            points={nearbyOffers}
+            selectedPoint={selectedPoint}
+          />
         </section>
         <div className="container">
           <section className="near-places places">
@@ -140,8 +157,9 @@ export function OfferPage(): JSX.Element {
             </h2>
             <OfferList
               className="near-places__list places__list"
-              offers={mockOffers}
+              offers={nearbyOffers}
               cardStyle={CardStyle.NearPlaces}
+              onItemHover={handleIsItemHover}
             />
           </section>
         </div>

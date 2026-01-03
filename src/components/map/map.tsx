@@ -8,6 +8,7 @@ import { ICity, Offer } from '../../types/offer.type';
 interface IMapProps {
   city: ICity;
   points: Offer[];
+  page: string;
   selectedPoint: Offer | null;
 }
 
@@ -24,10 +25,16 @@ const currentCustomIcon = leaflet.icon({
 });
 
 export function Map(props: IMapProps) {
-  const { city, points, selectedPoint } = props;
+  const { city, points, page, selectedPoint } = props;
 
   const mapRef = useRef(null);
   const map = useMap(mapRef, city.location);
+
+  const mapClassName: string = `${
+    page === 'MainPage'
+      ? 'cities__map'
+      : (page === 'OfferPage' ? 'offer__map' : '') || ''
+  } map`;
 
   useEffect(() => {
     if (map) {
@@ -61,5 +68,5 @@ export function Map(props: IMapProps) {
     }
   }, [map, points, selectedPoint, city]);
 
-  return <section className="cities__map map" ref={mapRef}></section>;
+  return <section className={mapClassName} ref={mapRef}></section>;
 }
