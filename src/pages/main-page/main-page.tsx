@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Header } from '../../components/header/header';
+import { Map } from '../../components/map/map';
 import { OfferList } from '../../components/offers-list/offers-list';
 import { CardStyle } from '../../const/offer';
 import { mockOffers } from '../../mocks/offers';
@@ -11,11 +12,14 @@ type MainPageProps = {
 
 export function MainPage(props: MainPageProps): JSX.Element {
   const { limit } = props;
-  const [, setSelectedPoint] = useState<Offer['id'] | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<Offer | null>(null);
 
   const handleIsItemHover = (itemId: Offer['id']) => {
-    setSelectedPoint(itemId);
+    const currentPoint = mockOffers.find((offer) => offer.id === itemId);
+    setSelectedPoint(currentPoint || null);
   };
+
+  const cityData = mockOffers[0].city;
 
   return (
     <div className="page page--gray page--main">
@@ -101,7 +105,11 @@ export function MainPage(props: MainPageProps): JSX.Element {
               />
             </section>
             <div className="cities__right-section">
-              <section className="cities__map map"></section>
+              <Map
+                city={cityData}
+                points={mockOffers}
+                selectedPoint={selectedPoint}
+              />
             </div>
           </div>
         </div>
