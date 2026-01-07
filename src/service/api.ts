@@ -1,13 +1,59 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import { StatusCodes } from 'http-status-codes';
+import { toast } from 'react-toastify';
+import { getToken } from './token';
+
+type DetailMessageType = {
+  type: string;
+  message: string;
+};
 
 const BACKEND_URL = 'https://14.design.htmlacademy.pro/six-cities';
 const REQUEST_TIMEOUT = 5000;
 
+const StatusCodeMapping: Record<number, boolean> = {
+  [StatusCodes.BAD_REQUEST]: true,
+  [StatusCodes.UNAUTHORIZED]: true,
+  [StatusCodes.NOT_FOUND]: true,
+};
+
+const shouldDisplayError = (response: AxiosResponse) =>
+  !!StatusCodeMapping[response.status];
+
 export const createAPI = (): AxiosInstance => {
-  const $api = axios.create({
+  const api = axios.create({
     baseURL: BACKEND_URL,
     timeout: REQUEST_TIMEOUT,
   });
 
-  return $api;
+  api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = getToken();
+    if (token) {
+      config.headers['x-token'] = token;
+    }
+    return config;
+  });
+
+  api.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError<DetailMessageType>) => {
+      if (
+        error.response &&
+        shouldDisplayError(error.response) &&
+        error.response.data.message !== 'Header Token is not correct'
+      ) {
+        const detailMessage = error.response.data;
+        toast.error(detailMessage.message);
+      }
+
+      throw error;
+    }
+  );
+
+  return api;
 };

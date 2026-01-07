@@ -7,7 +7,7 @@ import { LoginPage } from '../pages/login-page/login-page';
 import { MainPage } from '../pages/main-page/main-page';
 import { NotFoundPage } from '../pages/not-found-page/not-found-page';
 import { OfferPage } from '../pages/offer-page/offer-page';
-import { fetchOffers } from '../store/api-actions';
+import { checkAuthAction, fetchOffers } from '../store/api-actions';
 import PrivateRoute from './private-route/private-route';
 
 type AppProps = {
@@ -20,6 +20,7 @@ export function App(props: AppProps): JSX.Element {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    dispatch(checkAuthAction());
     dispatch(fetchOffers());
   }, [dispatch]);
 
@@ -28,7 +29,7 @@ export function App(props: AppProps): JSX.Element {
       <Routes>
         <Route path={Paths.Main} element={<MainPage limit={limit} />} />
         <Route path={Paths.Login} element={<LoginPage />} />
-        <Route element={<PrivateRoute isAuth />}>
+        <Route element={<PrivateRoute />}>
           <Route path={Paths.Favorites} element={<FavoritesPage />} />
         </Route>
         <Route path={Paths.Offer} element={<OfferPage />} />
