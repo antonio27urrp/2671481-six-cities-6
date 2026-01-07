@@ -26,7 +26,7 @@ export const getSortedOffers = createSelector(
         return [...offers].sort((a, b) => a.price - b.price);
       case OfferSortType.HighToLow:
         return [...offers].sort((a, b) => b.price - a.price);
-      case OfferSortType.TopRating: // Используем TopRating как в вашем enum
+      case OfferSortType.TopRating:
         return [...offers].sort((a, b) => b.rating - a.rating);
       default:
         return offers;

@@ -1,10 +1,13 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Paths } from '../const';
+import { useAppDispatch } from '../hooks/redux';
 import { FavoritesPage } from '../pages/favorites-page/favorites-page';
 import { LoginPage } from '../pages/login-page/login-page';
 import { MainPage } from '../pages/main-page/main-page';
 import { NotFoundPage } from '../pages/not-found-page/not-found-page';
 import { OfferPage } from '../pages/offer-page/offer-page';
+import { fetchOffers } from '../store/api-actions';
 import PrivateRoute from './private-route/private-route';
 
 type AppProps = {
@@ -13,6 +16,13 @@ type AppProps = {
 
 export function App(props: AppProps): JSX.Element {
   const { limit } = props;
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchOffers());
+  }, [dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
