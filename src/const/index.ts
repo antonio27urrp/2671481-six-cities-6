@@ -1,5 +1,13 @@
 export const LIMIT = 6;
 
+export const TIMEOUT_SHOW_ERROR = 2000;
+
+export enum AuthorizationStatus {
+  Auth = 'AUTH',
+  NoAuth = 'NO_AUTH',
+  Unknown = 'UNKNOWN',
+}
+
 export enum Paths {
   Main = '/',
   Favorites = '/favorites',

@@ -1,12 +1,20 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { Paths } from '../../const';
+import { AuthorizationStatus, Paths } from '../../const';
+import { useAppSelector } from '../../hooks/redux';
+import {
+  getAuthorizationStatus,
+  getIsAuth,
+} from '../../store/selectors/user-selectors';
+import { Spinner } from '../spinner/spinner';
 
-type PropsType = {
-  isAuth: boolean;
-};
+function PrivateRoute() {
+  const authStatus = useAppSelector(getAuthorizationStatus);
+  const isAuth = useAppSelector(getIsAuth);
 
-function PrivateRoute({ isAuth }: PropsType) {
+  if (authStatus === AuthorizationStatus.Unknown) {
+    return <Spinner />;
+  }
   return isAuth ? <Outlet /> : <Navigate to={Paths.Login} />;
 }
 
