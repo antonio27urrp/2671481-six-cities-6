@@ -8,7 +8,6 @@ import { OfferCard } from './offer-card';
 
 const mockStore = configureMockStore();
 
-// Создаем объект, который строго соответствует типу Offer
 const mockOffer: Offer = {
   id: '1',
   title: 'Beautiful apartment',
