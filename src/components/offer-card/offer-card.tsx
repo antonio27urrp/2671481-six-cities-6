@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Offer } from '../../types/offer.type';
 
@@ -7,7 +8,7 @@ type OfferCardProps = {
   onItemHover?: (item: string) => void;
 };
 
-export function OfferCard(props: OfferCardProps): JSX.Element {
+function OfferCard(props: OfferCardProps): JSX.Element {
   const { offer, cardStyle, onItemHover } = props;
 
   const handleMouseEnter = () => {
@@ -71,3 +72,6 @@ export function OfferCard(props: OfferCardProps): JSX.Element {
     </article>
   );
 }
+
+const memoOfferCard = memo(OfferCard);
+export { memoOfferCard as OfferCard };

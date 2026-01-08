@@ -1,4 +1,11 @@
-import { ChangeEvent, FormEvent, Fragment, useState } from 'react';
+import {
+  ChangeEvent,
+  FormEvent,
+  Fragment,
+  memo,
+  useCallback,
+  useState,
+} from 'react';
 import { useAppDispatch } from '../../hooks/redux';
 import { postCommentAction } from '../../store/api-actions';
 
@@ -10,7 +17,7 @@ type ReviewFromProps = {
   offerId: string;
 };
 
-export function ReviewForm(props: ReviewFromProps): JSX.Element {
+function ReviewForm(props: ReviewFromProps): JSX.Element {
   const { offerId } = props;
 
   const dispatch = useAppDispatch();
@@ -23,9 +30,14 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
     review.length >= MIN_LENGTH && review.length <= MAX_LENGTH;
   const isFormValid = rating > 0 && isLengthValid;
 
-  const handleRatingChange = (value: number) => setRating(value);
-  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) =>
-    setReview(e.target.value);
+  const handleRatingChange = useCallback(
+    (value: number) => setRating(value),
+    []
+  );
+  const handleInputChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => setReview(e.target.value),
+    []
+  );
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -110,3 +122,6 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
     </form>
   );
 }
+
+const memoReviewForm = memo(ReviewForm);
+export { memoReviewForm as ReviewForm };

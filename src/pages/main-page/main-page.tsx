@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { CityList } from '../../components/city-list/city-list';
 import { Header } from '../../components/header/header';
 import { Map } from '../../components/map/map';
@@ -22,12 +22,18 @@ export function MainPage(props: MainPageProps): JSX.Element {
   const activeCityName = useAppSelector(getActiveCity);
   const sortedOffers = useAppSelector(getSortedOffers);
 
-  const [selectedPoint, setSelectedPoint] = useState<Offer | null>(null);
+  const [selectedPointId, setSelectedPointId] = useState<Offer['id'] | null>(
+    null
+  );
 
-  const handleIsItemHover = (itemId: Offer['id']) => {
-    const currentPoint = sortedOffers.find((offer) => offer.id === itemId);
-    setSelectedPoint(currentPoint || null);
-  };
+  const handleIsItemHover = useCallback((itemId: Offer['id']) => {
+    setSelectedPointId(itemId);
+  }, []);
+
+  const selectedPoint = useMemo(
+    () => sortedOffers.find((offer) => offer.id === selectedPointId) || null,
+    [selectedPointId, sortedOffers]
+  );
 
   if (isLoading) {
     return <Spinner />;

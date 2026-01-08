@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Header } from '../../components/header/header';
 import { Map } from '../../components/map/map';
@@ -26,8 +26,6 @@ import { getIsAuth } from '../../store/selectors/user-selectors';
 import { Offer } from '../../types/offer.type';
 
 export function OfferPage(): JSX.Element {
-  const [selectedPoint, setSelectedPoint] = useState<Offer | null>(null);
-
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
 
@@ -37,6 +35,10 @@ export function OfferPage(): JSX.Element {
   const isAuth = useAppSelector(getIsAuth);
   const isFullOfferLoading = useAppSelector(getIsFullOfferLoading);
   const hasError = useAppSelector(getOfferErrorStatus);
+
+  const [selectedPointId, setSelectedPointId] = useState<Offer['id'] | null>(
+    null
+  );
 
   useEffect(() => {
     if (id) {
@@ -49,12 +51,19 @@ export function OfferPage(): JSX.Element {
     };
   }, [id, dispatch]);
 
-  const offerGallery: string[] = fullOffer?.images.slice(0, 6) || [];
+  const offerGallery = useMemo(
+    () => fullOffer?.images.slice(0, 6) || [],
+    [fullOffer?.images]
+  );
 
-  const handleIsItemHover = (itemId: Offer['id']) => {
-    const currentPoint = nearbyOffers.find((offer) => offer.id === itemId);
-    setSelectedPoint(currentPoint || null);
-  };
+  const handleIsItemHover = useCallback((itemId: Offer['id']) => {
+    setSelectedPointId(itemId);
+  }, []);
+
+  const selectedPoint = useMemo(
+    () => nearbyOffers.find((offer) => offer.id === selectedPointId) || null,
+    [selectedPointId, nearbyOffers]
+  );
 
   if (hasError) {
     return <Navigate to={Paths.NotFound} />;
