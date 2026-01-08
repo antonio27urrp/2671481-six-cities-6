@@ -1,23 +1,26 @@
-import { useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { OFFER_SORT_OPTIONS, OfferSortType } from '../../const/offer';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { changeSortType } from '../../store/reducers/offers-slice';
 import { getSortType } from '../../store/selectors/offers-selectors';
 
-export function SortOffers(): JSX.Element {
+function SortOffers(): JSX.Element {
   const dispatch = useAppDispatch();
   const sortParam = useAppSelector(getSortType);
 
   const [isOpened, setIsOpened] = useState(false);
 
-  const handleSortClick = () => {
+  const handleSortClick = useCallback(() => {
     setIsOpened((prev) => !prev);
-  };
+  }, []);
 
-  const handleSortParamClick = (type: string) => {
-    dispatch(changeSortType(type as OfferSortType));
-    setIsOpened(false);
-  };
+  const handleSortParamClick = useCallback(
+    (type: OfferSortType) => {
+      dispatch(changeSortType(type));
+      setIsOpened(false);
+    },
+    [dispatch]
+  );
 
   return (
     <form className="places__sorting" action="#" method="get">
@@ -46,7 +49,7 @@ export function SortOffers(): JSX.Element {
                 : ''
             }`}
             tabIndex={0}
-            onClick={() => handleSortParamClick(optionParam)}
+            onClick={() => handleSortParamClick(optionParam as OfferSortType)}
           >
             {optionParam}
           </li>
@@ -55,3 +58,6 @@ export function SortOffers(): JSX.Element {
     </form>
   );
 }
+
+const memoSortOffers = memo(SortOffers);
+export { memoSortOffers as SortOffers };

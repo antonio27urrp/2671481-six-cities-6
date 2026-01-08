@@ -1,4 +1,4 @@
-import { FormEvent, useRef } from 'react';
+import { FormEvent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Paths } from '../../const';
 import { CITY_LIST_OPTIONS } from '../../const/offer';
@@ -16,43 +16,48 @@ export function LoginPage(): JSX.Element {
 
   const isAuth = useAppSelector(getIsAuth);
 
+  const handleSubmit = useCallback(
+    (evt: FormEvent<HTMLFormElement>) => {
+      evt.preventDefault();
+
+      if (emailRef.current && passwordRef.current) {
+        const emailValue = emailRef.current.value;
+        const passwordValue = passwordRef.current.value.trim();
+
+        if (passwordValue.length > 0) {
+          dispatch(
+            loginAction({
+              email: emailValue,
+              password: passwordValue,
+            })
+          ).then((response) => {
+            if (response.meta.requestStatus === 'fulfilled') {
+              navigate(Paths.Main);
+            }
+          });
+        }
+      }
+    },
+    [dispatch, navigate]
+  );
+
+  const randomCity = useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * CITY_LIST_OPTIONS.length);
+    return CITY_LIST_OPTIONS[randomIndex];
+  }, []);
+
+  const handleCityClick = useCallback(
+    (evt: MouseEvent<HTMLAnchorElement>) => {
+      evt.preventDefault();
+      dispatch(changeCity(randomCity));
+      navigate(Paths.Main);
+    },
+    [dispatch, navigate, randomCity]
+  );
+
   if (isAuth) {
     return <Navigate to={Paths.Main} />;
   }
-
-  const handleSubmit = (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-
-    if (emailRef.current !== null && passwordRef.current !== null) {
-      const passwordValue = passwordRef.current.value.trim();
-
-      if (passwordValue.length > 0) {
-        dispatch(
-          loginAction({
-            email: emailRef.current.value,
-            password: passwordRef.current.value,
-          })
-        ).then((response) => {
-          if (response.meta.requestStatus === 'fulfilled') {
-            navigate(Paths.Main);
-          }
-        });
-      }
-    }
-  };
-
-  const getRandomCity = () => {
-    const randomIndex = Math.floor(Math.random() * CITY_LIST_OPTIONS.length);
-    return CITY_LIST_OPTIONS[randomIndex];
-  };
-
-  const randomCity = getRandomCity();
-
-  const handleCityClick = (evt: React.MouseEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    dispatch(changeCity(randomCity));
-    navigate(Paths.Main);
-  };
 
   return (
     <div className="page page--gray page--login">

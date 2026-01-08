@@ -1,19 +1,20 @@
+import { memo } from 'react';
 import { IReview } from '../../types/review.type';
 
 type ReviewItemProps = {
   comment: IReview;
 };
 
-export function ReviewItem(props: ReviewItemProps): JSX.Element {
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const month = date.toLocaleString('en-US', { month: 'long' });
+  const year = date.getFullYear();
+
+  return `${month} ${year}`;
+};
+
+function ReviewItem(props: ReviewItemProps): JSX.Element {
   const { comment } = props;
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const month = date.toLocaleString('en-US', { month: 'long' });
-    const year = date.getFullYear();
-
-    return `${month} ${year}`;
-  };
 
   return (
     <li className="reviews__item">
@@ -46,3 +47,6 @@ export function ReviewItem(props: ReviewItemProps): JSX.Element {
     </li>
   );
 }
+
+const memoReviewItem = memo(ReviewItem);
+export { memoReviewItem as ReviewItem };

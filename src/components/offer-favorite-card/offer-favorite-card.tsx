@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Paths } from '../../const';
 import { CardStyle } from '../../const/offer';
@@ -9,7 +10,7 @@ type OfferFavoriteCardProps = {
   sortOffersByCityName: Offer[];
 };
 
-export function OfferFavoriteCard(props: OfferFavoriteCardProps): JSX.Element {
+function OfferFavoriteCard(props: OfferFavoriteCardProps): JSX.Element {
   const { cityName, sortOffersByCityName } = props;
 
   const sortOffersByIsFavorite: Offer[] = sortOffersByCityName.filter(
@@ -41,3 +42,6 @@ export function OfferFavoriteCard(props: OfferFavoriteCardProps): JSX.Element {
     </li>
   );
 }
+
+const memoOfferFavoriteCard = memo(OfferFavoriteCard);
+export { memoOfferFavoriteCard as OfferFavoriteCard };

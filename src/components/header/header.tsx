@@ -1,17 +1,22 @@
+import { memo, MouseEvent, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Paths } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logoutAction } from '../../store/api-actions';
 import { getIsAuth, getUserData } from '../../store/selectors/user-selectors';
 
-export function Header(): JSX.Element {
+function Header(): JSX.Element {
   const dispatch = useAppDispatch();
   const isAuth = useAppSelector(getIsAuth);
   const user = useAppSelector(getUserData);
 
-  const handleLogout = () => {
-    dispatch(logoutAction());
-  };
+  const handleLogout = useCallback(
+    (evt: MouseEvent<HTMLAnchorElement>) => {
+      evt.preventDefault();
+      dispatch(logoutAction());
+    },
+    [dispatch]
+  );
 
   return (
     <header className="header">
@@ -65,3 +70,6 @@ export function Header(): JSX.Element {
     </header>
   );
 }
+
+const memoHeader = memo(Header);
+export { memoHeader as Header };
