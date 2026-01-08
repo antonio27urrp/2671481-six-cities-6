@@ -1,22 +1,27 @@
 import { ChangeEvent, FormEvent, Fragment, useState } from 'react';
+import { useAppDispatch } from '../../hooks/redux';
+import { postCommentAction } from '../../store/api-actions';
 
 const RATING_VALUES: number[] = [5, 4, 3, 2, 1];
 const MIN_LENGTH: number = 50;
 const MAX_LENGTH: number = 300;
 
 type ReviewFromProps = {
-  offerId?: string;
+  offerId: string;
 };
 
 export function ReviewForm(props: ReviewFromProps): JSX.Element {
   const { offerId } = props;
 
+  const dispatch = useAppDispatch();
+
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>('');
+  const [isSending, setIsSending] = useState<boolean>(false);
 
   const isLengthValid =
     review.length >= MIN_LENGTH && review.length <= MAX_LENGTH;
-  const isFormValid = () => rating > 0 && isLengthValid;
+  const isFormValid = rating > 0 && isLengthValid;
 
   const handleRatingChange = (value: number) => setRating(value);
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) =>
@@ -24,6 +29,21 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (isFormValid) {
+      setIsSending(true);
+
+      dispatch(postCommentAction({ offerId, comment: review, rating }))
+        .unwrap()
+        .then(() => {
+          setRating(0);
+          setReview('');
+        })
+        .catch(() => {})
+        .finally(() => {
+          setIsSending(false);
+        });
+    }
   };
 
   return (
@@ -47,6 +67,7 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
               id={`${value}-stars`}
               type="radio"
               checked={rating === value}
+              disabled={isSending}
               onChange={() => handleRatingChange(value)}
             />
             <label
@@ -68,6 +89,7 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={review}
         onChange={handleInputChange}
+        disabled={isSending}
         minLength={MIN_LENGTH}
         maxLength={MAX_LENGTH}
       />
@@ -80,9 +102,9 @@ export function ReviewForm(props: ReviewFromProps): JSX.Element {
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={!isFormValid()}
+          disabled={!isFormValid}
         >
-          Submit
+          {isSending ? 'Sending...' : 'Submit'}
         </button>
       </div>
     </form>
