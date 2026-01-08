@@ -4,10 +4,12 @@ import { FullOffer, Offers } from '../../types/offer.type';
 import { IReview } from '../../types/review.type';
 import {
   fetchCommentsAction,
+  fetchFavoritesAction,
   fetchFullOfferAction,
   fetchNearbyAction,
   fetchOffers,
   postCommentAction,
+  toggleFavoriteStatusAction,
 } from '../api-actions';
 
 interface OffersState {
@@ -15,6 +17,7 @@ interface OffersState {
   fullOffer: FullOffer | null;
   nearbyOffers: Offers;
   comments: IReview[];
+  favoritesOffers: Offers;
   sortType: OfferSortType;
   isLoading: boolean;
   isFullOfferLoading: boolean;
@@ -26,6 +29,7 @@ const initialState: OffersState = {
   fullOffer: null,
   nearbyOffers: [],
   comments: [],
+  favoritesOffers: [],
   sortType: OfferSortType.Popular,
   isLoading: false,
   isFullOfferLoading: false,
@@ -83,6 +87,37 @@ export const offersSlice = createSlice({
       })
       .addCase(postCommentAction.fulfilled, (state, action) => {
         state.comments.push(action.payload);
+      })
+      .addCase(fetchFavoritesAction.fulfilled, (state, action) => {
+        state.favoritesOffers = action.payload;
+      })
+      .addCase(toggleFavoriteStatusAction.fulfilled, (state, action) => {
+        const updatedOffer = action.payload;
+        const index = state.offers.findIndex((o) => o.id === updatedOffer.id);
+
+        if (index !== -1) {
+          state.offers[index].isFavorite = updatedOffer.isFavorite;
+        }
+
+        if (state.fullOffer && state.fullOffer.id === updatedOffer.id) {
+          state.fullOffer.isFavorite = updatedOffer.isFavorite;
+        }
+
+        const nearbyIndex = state.nearbyOffers.findIndex(
+          (o) => o.id === updatedOffer.id
+        );
+
+        if (nearbyIndex !== -1) {
+          state.nearbyOffers[nearbyIndex].isFavorite = updatedOffer.isFavorite;
+        }
+
+        if (updatedOffer.isFavorite) {
+          state.favoritesOffers.push(updatedOffer);
+        } else {
+          state.favoritesOffers = state.favoritesOffers.filter(
+            (o) => o.id !== updatedOffer.id
+          );
+        }
       });
   },
 });

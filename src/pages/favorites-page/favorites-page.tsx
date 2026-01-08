@@ -1,25 +1,35 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FavoritesList } from '../../components/favorites-list/favorites-list';
 import { Header } from '../../components/header/header';
 import { Paths } from '../../const';
-import { mockOffers } from '../../mocks/offers';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchFavoritesAction } from '../../store/api-actions';
+import { getFavoritesOffers } from '../../store/selectors/offers-selectors';
 
 export function FavoritesPage(): JSX.Element {
-  const isOffers = mockOffers.length > 0;
+  const dispatch = useAppDispatch();
+  const favoriteOffers = useAppSelector(getFavoritesOffers);
+
+  useEffect(() => {
+    dispatch(fetchFavoritesAction());
+  }, [dispatch]);
+
+  const hasOffers = favoriteOffers.length > 0;
 
   return (
     <div className="page">
       <Header />
       <main
         className={`page__main page__main--favorites ${
-          isOffers ? '' : 'page__main--favorites-empty'
+          hasOffers ? '' : 'page__main--favorites-empty'
         } `}
       >
         <div className="page__favorites-container container">
-          {isOffers ? (
+          {hasOffers ? (
             <section className="favorites">
               <h1 className="favorites__title">Saved listing</h1>
-              <FavoritesList offers={mockOffers} />
+              <FavoritesList offers={favoriteOffers} />
             </section>
           ) : (
             <section className="favorites favorites--empty">

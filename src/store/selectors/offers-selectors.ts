@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { MAX_COMMENTS_COUNT } from '../../const';
 import { OfferSortType } from '../../const/offer';
-import { Offer } from '../../types/offer.type';
+import { Offer, Offers } from '../../types/offer.type';
 import { State } from '../index';
 import { getActiveCity } from './city-selectors';
 
@@ -14,6 +14,9 @@ export const getIsFullOfferLoading = (state: State) =>
   state.offers.isFullOfferLoading;
 export const getOfferErrorStatus = (state: State): boolean =>
   state.offers.hasError;
+export const getFavoritesOffers = (state: State) =>
+  state.offers.favoritesOffers;
+export const getIsLoading = (state: State) => state.offers.isLoading;
 
 export const getFilteredOffers = createSelector(
   [getAllOffers, getActiveCity],
@@ -52,4 +55,26 @@ export const getSortedComments = createSelector(
     [...comments]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, MAX_COMMENTS_COUNT)
+);
+
+export const getFavoritesByCity = createSelector(
+  [getFavoritesOffers],
+  (offers) => {
+    const grouped: Record<string, Offers> = {};
+
+    offers.forEach((offer) => {
+      const city = offer.city.name;
+      if (!grouped[city]) {
+        grouped[city] = [];
+      }
+      grouped[city].push(offer);
+    });
+
+    return grouped;
+  }
+);
+
+export const getFavoritesCount = createSelector(
+  [getFavoritesOffers],
+  (favorites) => favorites.length
 );

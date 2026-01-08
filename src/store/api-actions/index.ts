@@ -4,7 +4,7 @@ import { AppDispatch, State } from '..';
 import { APIRoute } from '../../const/api';
 import { createAPI } from '../../service/api';
 import { dropToken, saveToken } from '../../service/token';
-import { FullOffer, Offers } from '../../types/offer.type';
+import { FullOffer, Offer, Offers } from '../../types/offer.type';
 import { IReview } from '../../types/review.type';
 import { AuthData, User } from '../../types/user.type';
 
@@ -91,5 +91,33 @@ export const postCommentAction = createAsyncThunk<
     comment,
     rating,
   });
+  return data;
+});
+
+export const fetchFavoritesAction = createAsyncThunk<
+  Offers,
+  undefined,
+  {
+    dispatch: AppDispatch;
+    state: State;
+    extra: AxiosInstance;
+  }
+>('data/fetchFavorites', async (_arg, { extra: api }) => {
+  const { data } = await api.get<Offers>(APIRoute.Favorite);
+  return data;
+});
+
+export const toggleFavoriteStatusAction = createAsyncThunk<
+  Offer,
+  { id: string; status: number },
+  {
+    dispatch: AppDispatch;
+    state: State;
+    extra: AxiosInstance;
+  }
+>('data/toggleFavoriteStatus', async ({ id, status }, { extra: api }) => {
+  const { data } = await api.post<Offer>(
+    `${APIRoute.Favorite}/${id}/${status}`
+  );
   return data;
 });

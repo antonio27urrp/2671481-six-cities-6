@@ -63,6 +63,15 @@ export interface ILocation {
   zoom: number;
 }
 
+export interface MapPoint {
+  id: string;
+  location: {
+    latitude: number;
+    longitude: number;
+    zoom: number;
+  };
+}
+
 export interface ICity {
   name: string;
   location: ILocation;

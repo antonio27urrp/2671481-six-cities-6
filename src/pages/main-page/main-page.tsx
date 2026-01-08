@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { CityList } from '../../components/city-list/city-list';
 import { Header } from '../../components/header/header';
+import { MainEmpty } from '../../components/main-empty/main-empty';
 import { Map } from '../../components/map/map';
 import { OfferList } from '../../components/offers-list/offers-list';
 import { SortOffers } from '../../components/sort-offers/sort-offers';
@@ -40,46 +41,55 @@ export function MainPage(props: MainPageProps): JSX.Element {
   }
 
   const cityData = sortedOffers[0]?.city;
+  const hasOffers = sortedOffers.length > 0;
 
   return (
     <div className="page page--gray page--main">
       <Header />
 
-      <main className="page__main page__main--index">
+      <main
+        className={`page__main page__main--index ${
+          !hasOffers ? 'page__main--index-empty' : ''
+        }`}
+      >
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
             <CityList />
           </section>
         </div>
-        <div className="cities">
-          <div className="cities__places-container container">
-            <section className="cities__places places">
-              <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">
-                {sortedOffers.length} places to stay in {activeCityName}
-              </b>
-              <SortOffers />
-              <OfferList
-                className="cities__places-list places__list tabs__content"
-                cardStyle={CardStyle.Cities}
-                offers={sortedOffers}
-                limit={limit}
-                onItemHover={handleIsItemHover}
-              />
-            </section>
-            <div className="cities__right-section">
-              {cityData && (
-                <Map
-                  page="MainPage"
-                  city={cityData}
-                  points={sortedOffers}
-                  selectedPoint={selectedPoint}
+        {hasOffers ? (
+          <div className="cities">
+            <div className="cities__places-container container">
+              <section className="cities__places places">
+                <h2 className="visually-hidden">Places</h2>
+                <b className="places__found">
+                  {sortedOffers.length} places to stay in {activeCityName}
+                </b>
+                <SortOffers />
+                <OfferList
+                  className="cities__places-list places__list tabs__content"
+                  cardStyle={CardStyle.Cities}
+                  offers={sortedOffers}
+                  limit={limit}
+                  onItemHover={handleIsItemHover}
                 />
-              )}
+              </section>
+              <div className="cities__right-section">
+                {cityData && (
+                  <Map
+                    page="MainPage"
+                    city={cityData}
+                    points={sortedOffers}
+                    selectedPoint={selectedPoint}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <MainEmpty />
+        )}
       </main>
     </div>
   );
