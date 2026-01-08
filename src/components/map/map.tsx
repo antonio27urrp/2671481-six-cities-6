@@ -1,15 +1,15 @@
-import leaflet from 'leaflet';
+import leaflet, { LayerGroup } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { URL_MARKER_CURRENT, URL_MARKER_DEFAULT } from '../../const';
 import { useMap } from '../../hooks/useMap';
-import { ICity, Offer } from '../../types/offer.type';
+import { ICity, MapPoint } from '../../types/offer.type';
 
 interface IMapProps {
   city: ICity;
-  points: Offer[];
+  points: MapPoint[];
   page: string;
-  selectedPoint: Offer | null;
+  selectedPoint: MapPoint | null;
 }
 
 const defaultCustomIcon = leaflet.icon({
@@ -24,11 +24,12 @@ const currentCustomIcon = leaflet.icon({
   iconAnchor: [20, 40],
 });
 
-export function Map(props: IMapProps) {
+function Map(props: IMapProps) {
   const { city, points, page, selectedPoint } = props;
 
   const mapRef = useRef(null);
   const map = useMap(mapRef, city.location);
+  const markerLayerRef = useRef<LayerGroup | null>(null);
 
   const mapClassName: string = `${
     page === 'MainPage'
@@ -38,16 +39,21 @@ export function Map(props: IMapProps) {
 
   useEffect(() => {
     if (map) {
-      map.eachLayer((layer) => {
-        if (layer instanceof leaflet.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
       map.setView(
         [city.location.latitude, city.location.longitude],
         city.location.zoom
       );
+    }
+  }, [map, city]);
+
+  useEffect(() => {
+    if (map) {
+      if (!markerLayerRef.current) {
+        markerLayerRef.current = leaflet.layerGroup().addTo(map);
+      }
+
+      const markerLayer = markerLayerRef.current;
+      markerLayer.clearLayers();
 
       points.forEach((point) => {
         leaflet
@@ -58,15 +64,19 @@ export function Map(props: IMapProps) {
             },
             {
               icon:
-                selectedPoint?.id && point.id === selectedPoint.id
+                selectedPoint && point.id === selectedPoint.id
                   ? currentCustomIcon
                   : defaultCustomIcon,
             }
           )
-          .addTo(map);
+          .addTo(markerLayer);
       });
     }
-  }, [map, points, selectedPoint, city]);
+  }, [map, points, selectedPoint]);
 
   return <section className={mapClassName} ref={mapRef}></section>;
 }
+
+const memoMap = memo(Map);
+
+export { memoMap as Map };

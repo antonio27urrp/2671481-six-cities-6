@@ -1,14 +1,22 @@
-import { memo, MouseEvent, useCallback } from 'react';
+import { memo, MouseEvent, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Paths } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { logoutAction } from '../../store/api-actions';
+import { fetchFavoritesAction, logoutAction } from '../../store/api-actions';
+import { getFavoritesCount } from '../../store/selectors/offers-selectors';
 import { getIsAuth, getUserData } from '../../store/selectors/user-selectors';
 
 function Header(): JSX.Element {
   const dispatch = useAppDispatch();
   const isAuth = useAppSelector(getIsAuth);
   const user = useAppSelector(getUserData);
+  const favoritesCount = useAppSelector(getFavoritesCount);
+
+  useEffect(() => {
+    if (isAuth) {
+      dispatch(fetchFavoritesAction());
+    }
+  }, [isAuth, dispatch]);
 
   const handleLogout = useCallback(
     (evt: MouseEvent<HTMLAnchorElement>) => {
@@ -48,7 +56,9 @@ function Header(): JSX.Element {
                     <span className="header__user-name user__name">
                       {user?.email}
                     </span>
-                    <span className="header__favorite-count">3</span>
+                    <span className="header__favorite-count">
+                      {favoritesCount}
+                    </span>
                   </Link>
                 </li>
               )}

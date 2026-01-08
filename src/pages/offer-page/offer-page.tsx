@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../../components/header/header';
 import { Map } from '../../components/map/map';
 import { OfferList } from '../../components/offers-list/offers-list';
@@ -13,6 +13,7 @@ import {
   fetchCommentsAction,
   fetchFullOfferAction,
   fetchNearbyAction,
+  toggleFavoriteStatusAction,
 } from '../../store/api-actions';
 import { clearOffer } from '../../store/reducers/offers-slice';
 import {
@@ -28,6 +29,7 @@ import { Offer } from '../../types/offer.type';
 export function OfferPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const fullOffer = useAppSelector(getFullOffer);
   const nearbyOffers = useAppSelector(getNearbyOffers);
@@ -51,19 +53,44 @@ export function OfferPage(): JSX.Element {
     };
   }, [id, dispatch]);
 
+  const handleFavoriteClick = () => {
+    if (!isAuth) {
+      navigate(Paths.Login);
+      return;
+    }
+
+    if (fullOffer) {
+      dispatch(
+        toggleFavoriteStatusAction({
+          id: fullOffer.id,
+          status: fullOffer.isFavorite ? 0 : 1,
+        })
+      );
+    }
+  };
+
   const offerGallery = useMemo(
     () => fullOffer?.images.slice(0, 6) || [],
     [fullOffer?.images]
   );
 
+  const mapPoints = useMemo(() => {
+    if (fullOffer) {
+      return [...nearbyOffers, fullOffer];
+    }
+    return nearbyOffers;
+  }, [nearbyOffers, fullOffer]);
+
+  const activePoint = useMemo(() => {
+    if (selectedPointId) {
+      return nearbyOffers.find((offer) => offer.id === selectedPointId) || null;
+    }
+    return fullOffer;
+  }, [selectedPointId, fullOffer, nearbyOffers]);
+
   const handleIsItemHover = useCallback((itemId: Offer['id']) => {
     setSelectedPointId(itemId);
   }, []);
-
-  const selectedPoint = useMemo(
-    () => nearbyOffers.find((offer) => offer.id === selectedPointId) || null,
-    [selectedPointId, nearbyOffers]
-  );
 
   if (hasError) {
     return <Navigate to={Paths.NotFound} />;
@@ -102,11 +129,13 @@ export function OfferPage(): JSX.Element {
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">{fullOffer.title}</h1>
                 <button
-                  className={`offer__bookmark-button ${
-                    fullOffer.isFavorite ? 'offer__bookmark-button--active' : ''
-                  }
-                    button`}
+                  className={`offer__bookmark-button button ${
+                    fullOffer.isFavorite && isAuth
+                      ? 'offer__bookmark-button--active'
+                      : ''
+                  }`}
                   type="button"
+                  onClick={handleFavoriteClick}
                 >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="#icon-bookmark"></use>
@@ -192,8 +221,8 @@ export function OfferPage(): JSX.Element {
           <Map
             page="OfferPage"
             city={fullOffer.city}
-            points={nearbyOffers}
-            selectedPoint={selectedPoint}
+            points={mapPoints}
+            selectedPoint={activePoint}
           />
         </section>
         <div className="container">
