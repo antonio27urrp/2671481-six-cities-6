@@ -4,7 +4,8 @@ import { AppDispatch, State } from '..';
 import { APIRoute } from '../../const/api';
 import { createAPI } from '../../service/api';
 import { dropToken, saveToken } from '../../service/token';
-import { Offers } from '../../types/offer.type';
+import { FullOffer, Offers } from '../../types/offer.type';
+import { IReview } from '../../types/review.type';
 import { AuthData, User } from '../../types/user.type';
 
 interface ThunkConfig {
@@ -52,3 +53,43 @@ export const logoutAction = createAsyncThunk<void, undefined, ThunkConfig>(
     dropToken();
   }
 );
+
+export const fetchFullOfferAction = createAsyncThunk<
+  FullOffer,
+  string,
+  ThunkConfig
+>('offer/fetchFullOffer', async (offerId, { extra: api }) => {
+  const { data } = await api.get<FullOffer>(`${APIRoute.Offers}/${offerId}`);
+  return data;
+});
+
+export const fetchNearbyAction = createAsyncThunk<Offers, string, ThunkConfig>(
+  'offer/fetchNearby',
+  async (offerId, { extra: api }) => {
+    const { data } = await api.get<Offers>(
+      `${APIRoute.Offers}/${offerId}/nearby`
+    );
+    return data;
+  }
+);
+
+export const fetchCommentsAction = createAsyncThunk<
+  IReview[],
+  string,
+  ThunkConfig
+>('offer/fetchComments', async (offerId, { extra: api }) => {
+  const { data } = await api.get<IReview[]>(`${APIRoute.Comments}/${offerId}`);
+  return data;
+});
+
+export const postCommentAction = createAsyncThunk<
+  IReview,
+  { offerId: string; comment: string; rating: number },
+  ThunkConfig
+>('offer/postComment', async ({ offerId, comment, rating }, { extra: api }) => {
+  const { data } = await api.post<IReview>(`${APIRoute.Comments}/${offerId}`, {
+    comment,
+    rating,
+  });
+  return data;
+});
