@@ -38,7 +38,6 @@ describe('Component: ReviewItem', () => {
   it('should calculate rating width correctly', () => {
     const { container } = render(<ReviewItem comment={mockReview} />);
 
-    // 4.4 округляется до 4. (4 * 100) / 5 = 80%
     const ratingStars = container.querySelector('.rating__stars span');
     expect(ratingStars).toHaveStyle('width: 80%');
   });
